@@ -1,0 +1,63 @@
+#Author: Ryan Chian
+#Date: 7/9/2022
+#Revision: 11
+#Notes: This program takes a complicated spreadsheet with many different expenses and deductions, and organizes it all into a single neat spreadsheet that calculates revenues for each property
+
+import gspread
+
+sa = gspread.service_account(filename = '%APPDATA%\gspread\service_account.json')
+sh = sa.open('Ryan_2022_RentalExpense')
+
+worksheet_lst = sh.worksheets()
+worksheet_lst.pop()
+summary = sh.add_worksheet(title = 'Summary', rows = '10', cols = '5') #new worksheet
+
+
+
+titles_lst = [] #cell values
+incomes_lst = [] #cell values
+expenses_lst = [] #cell values
+
+titles = summary.range('A2:A9') #cell lists
+incomes = summary.range('B2:B9') #cell lists
+expenses = summary.range('C2:C9') #cell lists
+
+total = 0
+
+for i in worksheet_lst:
+    title = i.title
+    titles_lst.append(title)
+
+    income = i.acell('D6').value
+    income = income.strip().replace(',', '')
+    x = int(income)
+    incomes_lst.append(x)
+
+    expense = i.acell('D46').value
+    expense = expense.strip().replace(',', '')
+    y = int(expense)
+    expenses_lst.append(y)
+
+
+    
+for i, val in enumerate(titles_lst):
+    titles[i].value = val
+summary.update_cells(titles)
+
+       
+for i, val in enumerate(incomes_lst):
+    incomes[i].value = val
+summary.update_cells(incomes)
+
+
+for i, val in enumerate(expenses_lst):
+    expenses[i].value = val
+summary.update_cells(expenses)
+
+summary.update_cell(1, 1, 'Property')
+summary.update_cell(1, 2, 'Income')
+summary.update_cell(1, 3, 'Expenses')
+summary.update_cell(1, 4, 'Profits/Losses')
+
+
+
